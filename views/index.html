@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://w3schools.com/w3css/4/w3.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.2/js/all.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Raleway:800" rel="stylesheet">
+    <style>
+        h1, h2, h3, h4, h5, h6, .title {
+            font-family: 'Raleway', sans-serif;
+        }
+
+        .fa-spinner {
+            -webkit-animation: rotation 1s infinite linear;
+        }
+
+        @-webkit-keyframes rotation {
+            from {
+                -webkit-transform: rotate(0deg);
+            }
+            to {
+                -webkit-transform: rotate(359deg);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="hero">
+    <div class="hero-body">
+        <div class="content">
+            <h1 class="title w3-center is-uppercase">Realtime Cryptowatcher</h1>
+            <br>
+            <div class="columns is-multiline">
+                <div class="column is-12">
+                    <div class="card w3-light-blue w3-round-xlarge">
+                        <div class="card-content">
+                            <div class="content">
+                                <div class="w3-center"><i
+                                        class="fab fa-bitcoin fa-5x"></i></i>&nbsp;&nbsp;&nbsp;&nbsp;<i
+                                        class="fas fa-chevron-right fa-5x"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i
+                                        class="fas fa-dollar-sign fa-5x"></i>
+                                </div>
+                                <div class="w3-padding-small">
+
+                                    <h1 class="is-uppercase">Exchange: <span id="exchange-BTC"> <i
+                                            class="fas fa-spinner"></i></span></h1>
+                                    <h1 class="is-uppercase">Selling: $<span id="selling-BTC"> <i
+                                            class="fas fa-spinner"></i></span></h1>
+                                    <h1 class="is-uppercase">Buying: $<span id="buying-BTC"> <i
+                                            class="fas fa-spinner"></i></span></h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-12">
+                    <div class="card w3-light-green w3-round-xlarge">
+                        <div class="card-content">
+                            <div class="content">
+                                <div class="w3-center"><i class="fab fa-ethereum fa-5x"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i
+                                        class="fas fa-chevron-right fa-5x"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i
+                                        class="fas fa-dollar-sign fa-5x"></i>
+                                </div>
+                                <div class="w3-padding-small">
+                                    <h1 class="is-uppercase">Exchange: <span id="exchange-ETH"> <i
+                                            class="fas fa-spinner"></i></span></h1>
+                                    <h1 class="is-uppercase">Selling: $<span id="selling-ETH"> <i
+                                            class="fas fa-spinner"></i></span></h1>
+                                    <h1 class="is-uppercase">Buying: $<span id="buying-ETH"> <i
+                                            class="fas fa-spinner"></i></span></h1>
+                                </div>
+                            </div>
+                            <div></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    //    var socket = io.connect('http://localhost:4200');
+    var socket = io.connect('https://streamer.cryptocompare.com/');
+    var subscription = [
+        '5~CCCAGG~BTC~USD',
+        '5~CCCAGG~ETH~USD',
+    ];
+    socket.emit('SubAdd', {subs: subscription});
+    socket.on("m", function (data) {
+        console.log(data);
+        let body = document.getElementById("body");
+        let message = data.split("~");
+        let flag = parseInt(message[4]);
+        let coin = message[2];
+
+//        flag=1 is buying, flag=2 is selling
+        try {
+            let exchange = document.getElementById('exchange-' + coin);
+            exchange.innerHTML = message[message.length - 2];
+        }
+        catch (err) {
+            console.log(err)
+        }
+        if (flag === 1) {
+
+            let buying = document.getElementById('buying-' + coin);
+            buying.innerHTML = message[5];
+
+        } else if (flag === 2) {
+            let selling = document.getElementById('selling-' + coin);
+            selling.innerHTML = message[5];
+
+        } else (console.log(flag))
+//
+    });
+
+    socket.on('connect', function (data) {
+        socket.emit('join', 'Joined');
+    });
+</script>
+</body>
+</html>
